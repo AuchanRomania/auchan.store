@@ -1,7 +1,7 @@
 {
   "vendor": "auchan",
   "name": "store",
-  "version": "2.137.3",
+  "version": "1.0.0",
   "title": "VTEX Store",
   "description": "The VTEX basic store.",
   "builders": {
