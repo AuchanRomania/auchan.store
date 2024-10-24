@@ -1,5 +1,5 @@
 /* eslint-disable react/jsx-filename-extension */
-import React, { Fragment, useEffect, useMemo, useState } from 'react'
+import React, { Fragment, useEffect, useMemo } from 'react'
 import {
   canUseDOM,
   ExtensionPoint,
@@ -15,8 +15,7 @@ import { OrderQueueProvider } from 'vtex.order-manager/OrderQueue'
 import { OrderItemsProvider } from 'vtex.order-items/OrderItems'
 import { OrderFormProvider as OrderFormProviderCheckout } from 'vtex.order-manager/OrderForm'
 
-import UserDataPixel from './components/UserDataPixel'
-import PageViewPixel from './components/PageViewPixel'
+import CombinedPixel from './components/CombinedPixel'
 import OrderFormProvider from './components/OrderFormProvider'
 import NetworkStatusToast from './components/NetworkStatusToast'
 import WrapperContainer from './components/WrapperContainer'
@@ -77,9 +76,6 @@ const StoreWrapper = ({ children, CustomContext }) => {
   } = useRuntime()
   const supportsServiceWorker = canUseDOM && 'serviceWorker' in navigator
 
-  // State to ensure UserDataPixel is loaded before PageViewPixel
-  const [isUserDataLoaded, setIsUserDataLoaded] = useState(false);
-
   useEffect(() => {
     prefetchDefaultPages([
       'store.custom',
@@ -98,21 +94,6 @@ const StoreWrapper = ({ children, CustomContext }) => {
   useEffect(() => {
     addNavigationRouteModifier(normalizeNavigation)
   }, [addNavigationRouteModifier])
-
-  useEffect(() => {
-    // Async function to ensure UserDataPixel finishes before PageViewPixel renders
-    const loadUserData = async () => {
-      try {
-        await UserDataPixel();  // Assuming UserDataPixel has a promise inside it
-        setIsUserDataLoaded(true);  // Trigger PageViewPixel once UserDataPixel is done
-      } catch (error) {
-        console.error('Error loading UserDataPixel:', error);
-        setIsUserDataLoaded(true);  // Allow PageViewPixel to load even if UserDataPixel fails
-      }
-    };
-
-    loadUserData();
-  }, []);  // Empty array ensures this runs only once
 
   const settings = getSettings(APP_LOCATOR) || {}
   const {
@@ -150,7 +131,6 @@ const StoreWrapper = ({ children, CustomContext }) => {
       </OrderFormProviderCheckout>
     </OrderQueueProvider>
   )
-
   return (
     <Fragment>
       <Helmet
@@ -189,6 +169,10 @@ const StoreWrapper = ({ children, CustomContext }) => {
           ...(parsedFavicons || []),
           ...(!amp && canonicalLink
             ? [
+                /* {
+                    rel: 'amphtml',
+                    href: encodeURI(`${canonicalLink}?amp`),
+                  }, */
                 {
                   rel: 'canonical',
                   href: encodeURI(canonicalLink),
@@ -199,11 +183,8 @@ const StoreWrapper = ({ children, CustomContext }) => {
       />
       <PixelProvider currency={currency}>
         <PWAProvider rootPath={rootPath}>
-          {/* Render UserDataPixel first */}
-          <UserDataPixel />
 
-          {/* Conditionally render PageViewPixel after UserDataPixel has loaded */}
-          {isUserDataLoaded && <PageViewPixel title={title} />}
+        <CombinedPixel/>
 
           <ToastProvider positioning="window">
             <NetworkStatusToast />
