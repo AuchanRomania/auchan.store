@@ -15,8 +15,7 @@ import { OrderQueueProvider } from 'vtex.order-manager/OrderQueue'
 import { OrderItemsProvider } from 'vtex.order-items/OrderItems'
 import { OrderFormProvider as OrderFormProviderCheckout } from 'vtex.order-manager/OrderForm'
 
-import UserDataPixel from './components/UserDataPixel'
-import PageViewPixel from './components/PageViewPixel'
+import UserPageHandler from './components/UserPageHandler';  // Import new component
 import OrderFormProvider from './components/OrderFormProvider'
 import NetworkStatusToast from './components/NetworkStatusToast'
 import WrapperContainer from './components/WrapperContainer'
@@ -132,6 +131,7 @@ const StoreWrapper = ({ children, CustomContext }) => {
       </OrderFormProviderCheckout>
     </OrderQueueProvider>
   )
+
   return (
     <Fragment>
       <Helmet
@@ -170,10 +170,6 @@ const StoreWrapper = ({ children, CustomContext }) => {
           ...(parsedFavicons || []),
           ...(!amp && canonicalLink
             ? [
-                /* {
-                    rel: 'amphtml',
-                    href: encodeURI(`${canonicalLink}?amp`),
-                  }, */
                 {
                   rel: 'canonical',
                   href: encodeURI(canonicalLink),
@@ -184,8 +180,9 @@ const StoreWrapper = ({ children, CustomContext }) => {
       />
       <PixelProvider currency={currency}>
         <PWAProvider rootPath={rootPath}>
-          <PageViewPixel title={title} />
-          <UserDataPixel />
+
+          <UserPageHandler title={title} />
+
           <ToastProvider positioning="window">
             <NetworkStatusToast />
             {enableOrderFormOptimization ? (

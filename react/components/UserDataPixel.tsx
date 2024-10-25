@@ -1,6 +1,13 @@
 import { useEffect, FC } from 'react'
 import { usePixel } from 'vtex.pixel-manager/PixelContext'
 
+
+interface UserDataPixelProps {
+
+  onUserDataLoaded?: () => void;
+
+}
+
 const fields = [
   'firstName',
   'lastName',
@@ -67,7 +74,7 @@ function getUserData(
   }, {})
 }
 
-const UserDataPixel: FC = () => {
+const UserDataPixel: FC<UserDataPixelProps> = ({ onUserDataLoaded }) => {
   const { push } = usePixel()
 
   useEffect(() => {
@@ -85,7 +92,12 @@ const UserDataPixel: FC = () => {
         ...userData,
       })
     })
-  }, [push])
+    if (onUserDataLoaded) {
+
+      onUserDataLoaded() // Notify when user data is fully loaded
+
+    }
+  }, [])
 
   return null
 }
